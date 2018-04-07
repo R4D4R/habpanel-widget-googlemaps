@@ -54,6 +54,9 @@
 		var gm_travel = getQueryVariable('gm_travel');
 		var gm_origin = getQueryVariable('gm_origin');
 		var gm_destination = getQueryVariable('gm_destination');
+	    
+	    	// Set local variables
+	    	var units = 'km' //Options: km, mi
 
 		function getQueryVariable(variable) {
 			var query = window.location.search.substring(1);
@@ -64,6 +67,17 @@
 			}
 			return(false);
 		}
+
+	    	function getCalculatedDistance(value) {
+                        if (units === 'km') {
+                                return value / 1000;
+                        } else if (units === 'mi') {
+                                return value * 0.00062137;
+                        } else {
+                                return false;
+                        }
+                }
+
 
 		// Create script element with google maps API key
 		var script = document.getElementById("googleMapsUrl");
@@ -168,6 +182,11 @@
 				calculateAndDisplayRoute();
 			}
 		} 
+
+		function pad (str, max) {
+                        str = str.toString();
+                        return str.length < max ? pad("0" + str, max) : str;
+                }
 		
 		function calculateAndDisplayRoute() {
 			var directionsDisplay = new google.maps.DirectionsRenderer;
@@ -190,9 +209,9 @@
 				var durationTraffic = response.routes[0].legs[0].duration_in_traffic.value;
 				var summaryPanel = document.getElementById('panel');
 				summaryPanel.innerHTML = '';
-				summaryPanel.innerHTML += '<strong>Distance</strong>: ' + (distance / 1000).toFixed(1) + 'km<br>';
-				summaryPanel.innerHTML += '<strong>Avg. time</strong>: ' + Math.floor(duration / 60) + ':' + duration % 60 +'s <br>';
-				summaryPanel.innerHTML += '<strong>Currently</strong>: ' + Math.floor(durationTraffic / 60) + ':' + durationTraffic % 60 +'s <br>';
+				summaryPanel.innerHTML += '<strong>Distance</strong>: ' + (getCalculatedDistance(distance)).toFixed(1) + units + '<br>';
+				summaryPanel.innerHTML += '<strong>Avg. time</strong>: ' + Math.floor(duration / 60) + ':' + pad(duration % 60,2) +'s <br>';
+				summaryPanel.innerHTML += '<strong>Currently</strong>: ' + Math.floor(durationTraffic / 60) + ':' + pad(durationTraffic % 60, 2) +'s <br>';
 
 				directionsDisplay.setDirections(response);
 			  } else {
